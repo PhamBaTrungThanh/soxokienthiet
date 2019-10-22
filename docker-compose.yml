@@ -1,0 +1,105 @@
+version: '3'
+services:
+
+  db:
+    image: "mariadb:10.1.30"
+    environment:
+      MYSQL_ROOT_PASSWORD: "1"
+      MYSQL_DATABASE: "bitcastle_backend"
+    ports:
+      - "10.8.0.1:3360:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+
+  redis:
+    image: "redis:alpine"
+    expose:
+      - 6379
+    
+  api:
+    build:
+      context: ./build
+      dockerfile: Dockerfile
+    volumes:
+      - ./bitcastle_backend:/var/www
+    ports:
+      - "$API_PORT:80"
+    env_file:
+      - ".env"
+    links:
+      - db
+      - redis
+
+  api-echo:
+    image: oanhnn/laravel-echo-server
+    links:
+      - redis
+    volumes: 
+      - "./bitcastle_backend/laravel-echo-server.json:/app/laravel-echo-server.json:ro"
+    ports:
+      - "$API_ECHO:6001"
+
+  frontend:
+    build:
+      context: ./build
+      dockerfile: Dockerfile
+    volumes:
+      - ./bitcastle_frontend:/var/www
+    ports:
+      - "$FRONTEND_PORT:80"
+    env_file:
+      - ".env"
+    links:
+      - db
+      - redis
+
+  frontend-watch:
+    build:
+        context: ./build
+        dockerfile: Dockerfile-node
+    links:
+      - frontend
+    volumes: 
+      - ./bitcastle_frontend:/var/www
+    tty: true
+    ports:
+      - "8090:8090"
+    command: >
+        sh -c "cd /var/www && npm run watch"
+   
+  admin:
+    build:
+      context: ./build
+      dockerfile: Dockerfile
+    volumes:
+      - ./bitcastle_admin:/var/www
+    ports:
+      - "$ADMIN_PORT:80"
+    env_file:
+      - ".env"
+    links:
+      - db
+      - redis
+
+  admin-watch:
+    build:
+        context: ./build
+        dockerfile: Dockerfile-node
+    links:
+      - admin
+    volumes: 
+      - ./bitcastle_admin:/var/www
+    tty: true 
+    command: >
+        sh -c "cd /var/www && npm run watch"
+
+  admin-echo:
+    image: oanhnn/laravel-echo-server
+    links:
+      - redis
+    volumes: 
+      - "./bitcastle_admin/laravel-echo-server.json:/app/laravel-echo-server.json:ro"
+    ports:
+      - "$ADMIN_ECHO:6001"
+volumes:
+  dbdata: {}
