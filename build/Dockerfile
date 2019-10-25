@@ -64,6 +64,7 @@ RUN apk add --no-cache --update php-fpm@php \
     php-phar@php \
     php-session@php \
     php-dom@php \
+    php-redis@php \
     php-ctype@php \
     php-zlib@php \
     php-json@php \
