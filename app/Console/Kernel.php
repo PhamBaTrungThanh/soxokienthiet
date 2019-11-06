@@ -5,6 +5,10 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Laravel\Lumen\Console\Kernel as ConsoleKernel;
 
+use App\Console\Commands\DispatchCommand;
+use App\Console\Commands\ClearDatabaseCommand;
+use App\Jobs\StartCrawlerJob;
+
 class Kernel extends ConsoleKernel
 {
     /**
@@ -13,7 +17,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        DispatchCommand::class,
+        ClearDatabaseCommand::class,
     ];
 
     /**
@@ -24,6 +29,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        //
+        $schedule->job(new StartCrawlerJob())->daily();
     }
 }
