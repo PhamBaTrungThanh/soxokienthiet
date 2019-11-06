@@ -7,7 +7,6 @@ use App\Jobs\KetQuaPageCrawlerJob;
 
 class GenerateImageJob extends Job
 {
-
     const MATRIX_DIMENSION = 10;
     /**
      * Create a new job instance.
@@ -44,7 +43,7 @@ class GenerateImageJob extends Job
             foreach ($row as $cellIndex => $cell) {
                 $left = $cellIndex * $this->cellSize;
                 if ($cell === 1) {
-                    // fill 
+                    // fill
                     ImageFilledRectangle($image, $left, $top, $left + $this->cellSize, $top + $this->cellSize, $colorBlack);
                 }
             }

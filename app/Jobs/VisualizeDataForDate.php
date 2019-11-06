@@ -7,7 +7,6 @@ use Illuminate\Support\Arr;
 
 class VisualizeDataForDate extends Job
 {
-
     const MATRIX_DIMENSION = 10;
     /**
      * Create a new job instance.
