@@ -29,6 +29,7 @@ class KetQuaPageCrawlerJob extends Job
         $body = $this->getHTML();
         $data = $this->parseHTML($body);
         $result = $this->storeData($data);
+        dispatch(new VisualizeDataForDate($this->queryDate->format('Y-m-d')));
         return $result;
     }
 

@@ -18,10 +18,9 @@ class VisualizeDataForDate extends Job
     public $date;
 
     protected $tries = 1;
-    public function __construct()
+    public function __construct(string $date)
     {
-        //$this->date = $date;
-        $this->date = '2006-04-21';
+        $this->date = $date;
     }
 
     /**
