@@ -11,11 +11,18 @@
 |
 */
 
+use Carbon\Carbon;
+
 $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
 $router->get('/cache', function () use ($router) {
     app('redis')->set('ping', 'PONG');
+
     return app('redis')->get('ping');
+});
+
+$router->get('/reset', function () use ($router) {
+    app('redis')->set(env('OPTION_LATEST_DATE_CRAWLED'), Carbon::now()->format('Y-m-d'));
 });

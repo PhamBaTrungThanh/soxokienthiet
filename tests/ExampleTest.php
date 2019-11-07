@@ -1,14 +1,13 @@
 <?php
 
-use Laravel\Lumen\Testing\DatabaseMigrations;
-use Laravel\Lumen\Testing\DatabaseTransactions;
-
+/**
+ * @internal
+ * @coversNothing
+ */
 class ExampleTest extends TestCase
 {
     /**
      * A basic test example.
-     *
-     * @return void
      */
     public function testExample()
     {

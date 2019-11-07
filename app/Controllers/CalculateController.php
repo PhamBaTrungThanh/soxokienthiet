@@ -1,12 +1,13 @@
 <?php
+
 namespace App\Controllers;
 
 use App\Libraries\Chunking;
 use App\Libraries\Collection;
 use App\Libraries\Helpers;
-use Illuminate\Http\Request;
-use Carbon\Carbon;
 use App\Models\Lottery;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 //const LIMITER_3 = 628;
 
@@ -14,10 +15,10 @@ class CalculateController
 {
     public function index(Request $request)
     {
-        if ($request->query("date")) {
-            $lottery = (new Lottery)->get($request->query("date"));
+        if ($request->query('date')) {
+            $lottery = (new Lottery())->get($request->query('date'));
             if (!$lottery) {
-                die("Not in database");
+                die('Not in database');
             }
         } else {
             $lottery = (new Lottery())->latest();
@@ -27,15 +28,15 @@ class CalculateController
         //$LIMITER_3 = $lottery->date->weekOfYear * $lottery->date->dayOfWeek;
         //$LIMITER_3 = 500;
         $year = $lottery->date->year;
-        $skip_date = $lottery->date->format("Y-m-d");
+        $skip_date = $lottery->date->format('Y-m-d');
         $list = (new Chunking($lottery))->getGroupedChunks();
-        
+
         // sanitize 1
         //dd($list);
         //$list = array_filter($list, function($item) { return $item > 1;});
         foreach ($list as $key => $weight) {
             $chunk = json_decode(redis()->get("chunk:{$key}"), true);
-            
+
             foreach ($chunk as $date => $count) {
                 $compare_date = Carbon::parse($date);
                 if ($compare_date < $lottery->date) {
@@ -46,24 +47,21 @@ class CalculateController
                     //$dates[$date]++;
                 }
 
-
                 // sanitize 2
             }
         }
-    
+
         // limiter 3
-        
+
         // // arsort($dates);
         $limiter = floor((1 / M_PI) * count($dates));
         // // $key = array_keys($dates)[$limiter];
-        
+
         // // $LIMITER_3 = $dates[$key] + $lottery->date->weekOfYear * 2;
-        
 
         $dates = array_slice($dates, $limiter);
-        
+
         // $dates = array_filter($dates, function($item) { return ($item > 1000); });
-        
 
         foreach ($dates as $date => $count) {
             $lotteria = (new Lottery())->get($date)->getNext();
@@ -74,7 +72,7 @@ class CalculateController
                         $matches[$number] = 0;
                     }
                     // $matches[$number] += $value * $count;
-                    $matches[$number]++;
+                    ++$matches[$number];
                 }
             }
         }
@@ -97,8 +95,7 @@ class CalculateController
                 $matches = array_filter($matches, function($item) { return ($item <> 0); });
                 */
         arsort($matches);
-        
-        
+
         $resultLottery = $lottery->getNext();
         $group = [];
         foreach ($matches as $match => $value) {
@@ -107,44 +104,44 @@ class CalculateController
             } else {
                 $group[$value][] = $match;
             }
-            if (count($group) === 10) {
+            if (10 === count($group)) {
                 break;
             }
         }
         $count = 1;
-        echo "<pre>";
+        echo '<pre>';
 
         echo "-------------------\n";
         echo "| Dự đoán kết quả |\n";
-        echo "| Ngày " . $lottery->date->addDay()->format("d/m/Y") ." |\n";
+        echo '| Ngày '.$lottery->date->addDay()->format('d/m/Y')." |\n";
         echo "-------------------\n";
         foreach ($group as $predictions) {
             $header = false;
             foreach ($predictions as $prediction) {
-                if ($header === false) {
-                    echo "| " . Helpers::addOrdinalNumberSuffix($count);
+                if (false === $header) {
+                    echo '| '.Helpers::addOrdinalNumberSuffix($count);
                     if ($count < 10) {
-                        echo  " ";
+                        echo  ' ';
                     }
-                    echo " |";
+                    echo ' |';
                     $header = true;
                 } else {
                     if ($count < 10) {
-                        echo "|      |";
+                        echo '|      |';
                     } else {
-                        echo "|     |";
+                        echo '|     |';
                     }
                 }
-                
+
                 echo "  {$prediction}  | ";
                 if ($resultLottery) {
-                    echo in_array($prediction, $resultLottery->value) ? "T" : "F";
+                    echo in_array($prediction, $resultLottery->value) ? 'T' : 'F';
                 } else {
-                    echo "N";
+                    echo 'N';
                 }
                 echo " |\n";
             }
-            $count++;
+            ++$count;
             echo "-------------------\n";
         }
 
