@@ -32,47 +32,6 @@ class GenerateImageGridJob extends Job
     }
 
     /**
-     * Execute the job.
-     */
-    public function test()
-    {
-        $output_img_name = 'output.png';
-        $path = 'img/';
-        $files = scandir($path);
-        $files = array_values(array_diff(scandir($path), ['.', '..']));
-
-        $thumbSize = 300;
-        $tileWidth = $tileHeight = 50;
-        $numberOfTiles = 9;
-        $numberOfTilesPerRow = 3;
-
-        $pxBetweenTiles = 0;
-        $leftOffSet = $topOffSet = 0;
-
-        $mapWidth = $mapHeight = ($tileWidth + $pxBetweenTiles) * floor($numberOfTiles / $numberOfTilesPerRow);
-
-        $mapImage = imagecreatetruecolor($mapWidth, $mapHeight);
-        $bgColor = imagecolorallocate($mapImage, 0, 0, 0);
-        imagefill($mapImage, 0, 0, $bgColor);
-
-        function indexToCoords($index)
-        {
-            global $tileWidth, $pxBetweenTiles, $leftOffSet, $topOffSet, $numberOfTiles, $numberOfTilesPerRow;
-
-            $x = ($index % $numberOfTilesPerRow) * ($tileWidth + $pxBetweenTiles) + $leftOffSet;
-            $y = floor($index / $numberOfTilesPerRow) * ($tileWidth + $pxBetweenTiles) + $topOffSet;
-
-            return [$x, $y];
-        }
-
-        $thumbImage = imagecreatetruecolor($thumbSize, $thumbSize);
-        imagecopyresampled($thumbImage, $mapImage, 0, 0, 0, 0, $thumbSize, $thumbSize, $mapWidth, $mapWidth);
-
-        header('Content-type: image/png');
-        imagepng($thumbImage, $output_img_name);
-    }
-
-    /**
      * Return coordinates from index.
      *
      * @return array [$x, $y]
@@ -141,7 +100,6 @@ class GenerateImageGridJob extends Job
 
         $directoryPath = storage_path("images/grids/{$this->tilePerRow}x{$this->tilePerRow}/");
 
-        info($directoryPath);
         if (!is_dir($directoryPath)) {
             mkdir($directoryPath);
         }
