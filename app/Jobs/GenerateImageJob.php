@@ -49,6 +49,6 @@ class GenerateImageJob extends Job
             }
         }
 
-        imagepng($image, storage_path("image/single/{$this->fileName}.png"));
+        imagepng($image, storage_path("images/single/{$this->fileName}.png"));
     }
 }
