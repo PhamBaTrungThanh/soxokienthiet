@@ -1,23 +1,19 @@
 <?php
 
 /**
- *
- * PHP version >= 7.0
+ * PHP version >= 7.0.
  *
  * @category Console_Command
- * @package  App\Console\Commands
  */
 
 namespace App\Console\Commands;
 
-use Exception;
 use Illuminate\Console\Command;
 
 /**
- * Class deletePostsCommand
+ * Class deletePostsCommand.
  *
  * @category Console_Command
- * @package  App\Console\Commands
  */
 class ClearDatabaseCommand extends Command
 {
@@ -26,15 +22,14 @@ class ClearDatabaseCommand extends Command
      *
      * @var string
      */
-    protected $signature = "clear:database";
+    protected $signature = 'clear:database';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = "Clear redis database";
-
+    protected $description = 'Clear redis database';
 
     /**
      * Execute the console command.

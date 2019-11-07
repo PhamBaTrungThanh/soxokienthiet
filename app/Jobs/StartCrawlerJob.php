@@ -3,24 +3,18 @@
 namespace App\Jobs;
 
 use Carbon\Carbon;
-use App\Jobs\KetQuaPageCrawlerJob;
 
 class StartCrawlerJob extends Job
 {
     /**
      * Create a new job instance.
-     *
-     * @return void
      */
     public function __construct()
     {
-        //
     }
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle()
     {
@@ -28,10 +22,19 @@ class StartCrawlerJob extends Job
 
         if ($latest_date_crawled->diffInDays(Carbon::now(), false) <= 0) {
             app('log')->info($latest_date_crawled);
+            $this->delete();
+
+            return null;
+        }
+        $rollTime = Carbon::today()->setHour(18)->setMinute(40);
+        if ($latest_date_crawled->lessThan($rollTime)) {
+            info('Roll time invalid', [$latest_date_crawled]);
+            $this->delete();
+
             return null;
         }
         $next_date_to_crawl = $latest_date_crawled->addDay();
-        app('log')->info('Crawl for ' . $next_date_to_crawl->toString());
+        app('log')->info('Crawl for '.$next_date_to_crawl->toString());
         dispatch((new KetQuaPageCrawlerJob($next_date_to_crawl))->chain([new self()]));
     }
 
