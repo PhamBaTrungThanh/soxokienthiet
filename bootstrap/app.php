@@ -105,5 +105,7 @@ $app->router->group([
 $app->configure('database');
 $app->configure('cache');
 $app->configure('queue');
+$app->configure('app');
+$app->configure('logging');
 
 return $app;
