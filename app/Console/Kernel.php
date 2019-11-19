@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Console\Commands\ClearDatabaseCommand;
 use App\Console\Commands\DispatchCommand;
+use App\Console\Commands\DistributeDataCommand;
 use App\Console\Commands\RegenerateGridCommand;
 use App\Jobs\StartCrawlerJob;
 use Illuminate\Console\Scheduling\Schedule;
@@ -20,6 +21,7 @@ class Kernel extends ConsoleKernel
         DispatchCommand::class,
         ClearDatabaseCommand::class,
         RegenerateGridCommand::class,
+        DistributeDataCommand::class,
     ];
 
     /**
