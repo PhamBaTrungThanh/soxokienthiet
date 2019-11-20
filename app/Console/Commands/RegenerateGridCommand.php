@@ -8,7 +8,7 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\GenerateGridJob;
+use App\Jobs\Generates\GenerateGridJob;
 use Illuminate\Console\Command;
 
 /**

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\Generates;
 
 use Illuminate\Support\Str;
 

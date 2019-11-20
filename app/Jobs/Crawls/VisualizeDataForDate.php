@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\Crawls;
 
+use App\Jobs\Generates\GenerateImageJob;
 use Exception;
 use Illuminate\Support\Arr;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\Crawls;
 
 use Carbon\Carbon;
 use GuzzleHttp\Client;
