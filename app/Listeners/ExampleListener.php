@@ -15,8 +15,6 @@ class ExampleListener
 
     /**
      * Handle the event.
-     *
-     * @param ExampleEvent $event
      */
     public function handle(ExampleEvent $event)
     {
