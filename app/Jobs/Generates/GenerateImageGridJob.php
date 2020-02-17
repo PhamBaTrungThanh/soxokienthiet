@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Generates;
 
+use App\Jobs\Job;
 use Carbon\Carbon;
 use Exception;
 
@@ -18,15 +19,16 @@ class GenerateImageGridJob extends Job
 
     public $gridSize;
 
+    public $shouldProcess = true;
     public $tileSize;
 
     public function __construct(string $date)
     {
         $this->date = Carbon::parse($date);
 
-        $this->tilePerRow = env('IMAGE_ROW_GRID', 3);
+        $this->tilePerRow = config('app.image.row_grid');
 
-        $this->tileSize = self::MATRIX_DIMENSION * env('IMAGE_CELL_SIZE', 5);
+        $this->tileSize = self::MATRIX_DIMENSION * config('app.image.cell_size');
 
         $this->gridSize = $this->tilePerRow * $this->tileSize;
     }
@@ -65,21 +67,26 @@ class GenerateImageGridJob extends Job
      */
     public function makeImageList()
     {
-        $totalImageNeeded = $this->tilePerRow * $this->tilePerRow;
-        $pathList = [];
+        try {
+            $totalImageNeeded = $this->tilePerRow * $this->tilePerRow;
+            $pathList = [];
+            info("Make grid for date: {$this->date->format('Y-m-d')}");
+            for ($imageIndex = $totalImageNeeded - 1; $imageIndex >= 0; --$imageIndex) {
+                $dateToLoad = $this->date->clone()->subDays($imageIndex);
 
-        for ($imageIndex = $totalImageNeeded - 1; $imageIndex >= 0; --$imageIndex) {
-            $dateToLoad = $this->date->clone()->subDays($imageIndex);
+                $fileNameFromDate = "{$dateToLoad->format('Y-m-d')}";
 
-            $fileNameFromDate = "{$dateToLoad->format('Y-m-d')}";
+                $filePath = storage_path("images/single/{$fileNameFromDate}.png");
 
-            $filePath = storage_path("images/single/{$fileNameFromDate}.png");
+                if (!file_exists($filePath)) {
+                    throw new Exception("Image from path '".$filePath."' does not exits. Skip this date.");
+                }
 
-            if (!file_exists($filePath)) {
-                throw new Exception("Image from path '".$filePath."' does not exits. Aborting.");
+                $pathList[] = $filePath;
             }
-
-            $pathList[] = $filePath;
+        } catch (Exception $e) {
+            app('log')->warning($e->getMessage());
+            $this->shouldProcess = false;
         }
 
         return $pathList;
@@ -89,22 +96,24 @@ class GenerateImageGridJob extends Job
     {
         $imageList = $this->makeImageList();
 
-        $gridImage = $this->makeImageGrid($imageList);
+        if ($this->shouldProcess) {
+            $gridImage = $this->makeImageGrid($imageList);
+            foreach ($imageList as $index => $imagePath) {
+                list($x, $y) = $this->makeCoordinatesFromIndex($index);
+                $tileImage = imagecreatefrompng($imagePath);
+                imagecopy($gridImage, $tileImage, $x, $y, 0, 0, $this->tileSize, $this->tileSize);
+                imagedestroy($tileImage);
+            }
 
-        foreach ($imageList as $index => $imagePath) {
-            list($x, $y) = $this->makeCoordinatesFromIndex($index);
-            $tileImage = imagecreatefrompng($imagePath);
-            imagecopy($gridImage, $tileImage, $x, $y, 0, 0, $this->tileSize, $this->tileSize);
-            imagedestroy($tileImage);
+            $directoryPath = storage_path("images/grids/{$this->tilePerRow}x{$this->tilePerRow}/");
+            if (!is_dir($directoryPath)) {
+                mkdir($directoryPath);
+            }
+            $filePath = $directoryPath.$this->date->format('Y-m-d').'.png';
+
+            imagepng($gridImage, $filePath);
+        } else {
+            $this->delete();
         }
-
-        $directoryPath = storage_path("images/grids/{$this->tilePerRow}x{$this->tilePerRow}/");
-
-        if (!is_dir($directoryPath)) {
-            mkdir($directoryPath);
-        }
-        $filePath = $directoryPath.$this->date->format('Y-m-d').'.png';
-
-        imagepng($gridImage, $filePath);
     }
 }

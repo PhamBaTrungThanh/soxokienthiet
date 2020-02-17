@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Crawls;
 
+use App\Jobs\Job;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 
@@ -60,11 +61,11 @@ class KetQuaPageCrawlerJob extends Job
 
     private function storeData($data)
     {
-        $key = sprintf('%s:%s', env('LOTTERY_KEY'), $this->queryDate->format('Y-m-d'));
+        $key = sprintf('%s:%s', config('app.lottery.key'), $this->queryDate->format('Y-m-d'));
         app('redis')->set($key, json_encode($data));
         app('redis')->persist($key);
-        app('redis')->set(env('OPTION_LATEST_DATE_CRAWLED'), $this->queryDate->format('Y-m-d'));
-        app('redis')->persist(env('OPTION_LATEST_DATE_CRAWLED'));
+        app('redis')->set(config('app.lottery.latest_date'), $this->queryDate->format('Y-m-d'));
+        app('redis')->persist(config('app.lottery.latest_date'));
 
         return true;
     }

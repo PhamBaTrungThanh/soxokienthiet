@@ -3,6 +3,7 @@
 namespace App\Jobs\Crawls;
 
 use App\Jobs\Generates\GenerateImageJob;
+use App\Jobs\Job;
 use Exception;
 use Illuminate\Support\Arr;
 
@@ -26,7 +27,7 @@ class VisualizeDataForDate extends Job
      */
     public function handle()
     {
-        $key = sprintf('%s:%s', env('LOTTERY_KEY'), $this->date);
+        $key = sprintf('%s:%s', config('app.lottery.key'), $this->date);
         $storedData = app('redis')->get($key);
         if ('' === trim($storedData)) {
             throw new Exception('No data found for key: '.$key);

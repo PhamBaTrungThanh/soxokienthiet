@@ -44,7 +44,7 @@ class DistributeDataCommand extends Command
         if (!$gridSize) {
             $this->warn('No grid size found, guest from environment');
 
-            $gridSize = env('IMAGE_ROW_GRID');
+            $gridSize = config('app.image.row_grid');
         }
 
         $imageDirectory = storage_path('images/single');

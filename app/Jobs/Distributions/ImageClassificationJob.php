@@ -32,7 +32,7 @@ class ImageClassificationJob extends Job
     public function handle()
     {
         info('Image for: ', [$this->date->format('Y-m-d')]);
-        $key = sprintf('%s:%s', env('LOTTERY_KEY'), $this->date->clone()->addDay()->format('Y-m-d'));
+        $key = sprintf('%s:%s', config('app.lottery.key'), $this->date->clone()->addDay()->format('Y-m-d'));
 
         $result = app('redis')->get($key);
 

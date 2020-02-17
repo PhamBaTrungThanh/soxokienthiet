@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Crawls;
 
+use App\Jobs\Job;
 use Carbon\Carbon;
 
 class StartCrawlerJob extends Job
@@ -43,12 +44,12 @@ class StartCrawlerJob extends Job
 
     public function getLatestCrawledDate()
     {
-        $latest = app('redis')->get(env('OPTION_LATEST_DATE_CRAWLED'));
+        $latest = app('redis')->get(config('app.lottery.latest_date'));
         if (!$latest) {
-            app('redis')->set(env('OPTION_LATEST_DATE_CRAWLED'), env('LOTTERY_OLDEST_DATE'));
-            app('redis')->persist(env('OPTION_LATEST_DATE_CRAWLED'));
+            app('redis')->set(config('app.lottery.latest_date'), config('app.lottery.oldest_date'));
+            app('redis')->persist(config('app.lottery.latest_date'));
 
-            return Carbon::parse(env('LOTTERY_OLDEST_DATE'));
+            return Carbon::parse(config('app.lottery.oldest_date'));
         }
 
         return Carbon::parse($latest);

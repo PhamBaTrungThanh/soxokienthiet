@@ -2,6 +2,8 @@
 
 namespace App\Jobs\Generates;
 
+use App\Jobs\Job;
+
 class GenerateImageJob extends Job
 {
     const MATRIX_DIMENSION = 10;
@@ -16,7 +18,7 @@ class GenerateImageJob extends Job
     {
         $this->fileName = $fileName;
         $this->map = $map;
-        $this->cellSize = env('IMAGE_CELL_SIZE', 5); // px
+        $this->cellSize = config('app.image.cell_size');
     }
 
     /**
