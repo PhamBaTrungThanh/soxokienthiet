@@ -2,11 +2,12 @@
 
 namespace App\Jobs\Crawls;
 
+use App\Jobs\Generates\ChainGenerateJob;
 use App\Jobs\Job;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 
-class KetQuaPageCrawlerJob extends Job
+class ProcessingCrawledPageJob extends Job
 {
     /**
      * Create a new job instance.
@@ -27,7 +28,7 @@ class KetQuaPageCrawlerJob extends Job
         $body = $this->getHTML();
         $data = $this->parseHTML($body);
         $result = $this->storeData($data);
-        dispatch(new VisualizeDataForDate($this->queryDate->format('Y-m-d')));
+        dispatch(new ChainGenerateJob($this->queryDate->format('Y-m-d')));
 
         return $result;
     }

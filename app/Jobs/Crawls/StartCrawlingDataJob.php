@@ -5,7 +5,7 @@ namespace App\Jobs\Crawls;
 use App\Jobs\Job;
 use Carbon\Carbon;
 
-class StartCrawlerJob extends Job
+class StartCrawlingDataJob extends Job
 {
     /**
      * Create a new job instance.
@@ -39,7 +39,7 @@ class StartCrawlerJob extends Job
 
         $next_date_to_crawl = $latest_date_crawled->addDay();
         app('log')->info('Crawl for '.$next_date_to_crawl->toString());
-        dispatch((new KetQuaPageCrawlerJob($next_date_to_crawl))->chain([new self()]));
+        dispatch((new ProcessingCrawledPageJob($next_date_to_crawl))->chain([new self()]));
     }
 
     public function getLatestCrawledDate()
