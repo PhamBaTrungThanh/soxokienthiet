@@ -2,7 +2,7 @@
 
 namespace App\Console;
 
-use App\Console\Commands\ClearDatabaseCommand;
+use App\Console\Commands\ClearCommand;
 use App\Console\Commands\DispatchCommand;
 use App\Console\Commands\DistributeDataCommand;
 use App\Console\Commands\RegenerateGridCommand;
@@ -20,7 +20,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         DispatchCommand::class,
-        ClearDatabaseCommand::class,
+        ClearCommand::class,
         RegenerateGridCommand::class,
         DistributeDataCommand::class,
         RegenerateImageCommand::class,
