@@ -8,10 +8,6 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\Crawls\VisualizeDataForDate;
-use App\Jobs\Generates\FinishGenerateJob;
-use App\Jobs\Generates\StartGenerateJob;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 
@@ -20,21 +16,21 @@ use Illuminate\Support\Str;
  *
  * @category Console_Command
  */
-class RegenerateImageCommand extends Command
+class RefreshGridCommand extends Command
 {
     /**
      * The console command name.
      *
      * @var string
      */
-    protected $signature = 'regenerate:image';
+    protected $signature = 'refresh:grid';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Rerun image job';
+    protected $description = 'Load library and scan grid dir for missing images';
 
     /**
      * Execute the console command.
@@ -44,12 +40,22 @@ class RegenerateImageCommand extends Command
     public function handle()
     {
         $keys = app('redis')->keys(config('app.lottery.key').':*');
-        $queues = [];
+        $grid = [];
         foreach ($keys as $key) {
             $date = Str::after($key, config('app.lottery.key').':');
-            $queues[] = new VisualizeDataForDate($date);
+            $grid[$date] = $this->checkGridExists($date);
         }
-        $queues[] = new FinishGenerateJob("Image generated.\nRun at: ".Carbon::now()->setTimezone('7')->format('Y-m-d H:i'));
-        dispatch((new StartGenerateJob('Regenerate Image Batch'))->chain($queues));
+        $this->table(['Total database row', 'Grid missing'], [
+            [count($keys), count($grid)],
+        ]);
+    }
+
+    private function checkGridExists($date)
+    {
+        $tilePerRow = config('app.image.row_grid');
+
+        return file_exists(
+            storage_path("images/grids/{$tilePerRow}x{$tilePerRow}/{$date}.png")
+        );
     }
 }
