@@ -11,8 +11,8 @@
             'row_grid' => env('IMAGE_ROW_GRID', 10),
         ],
         'lottery' => [
-            'key' => env('LOTTERY_KEY'),
-            'latest_date' => env('OPTION_LATEST_DATE_CRAWLED'),
+            'key' => env('LOTTERY_KEY', 'lottery'),
+            'latest_date' => env('OPTION_LATEST_DATE_CRAWLED', 'options:latest_date_crawled'),
             'oldest_date' => env('LOTTERY_OLDEST_DATE', '2006-04-19'),
         ],
     ];
