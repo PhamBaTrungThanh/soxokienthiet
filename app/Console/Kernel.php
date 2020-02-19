@@ -5,9 +5,9 @@ namespace App\Console;
 use App\Console\Commands\ClearCommand;
 use App\Console\Commands\DispatchCommand;
 use App\Console\Commands\DistributeDataCommand;
+use App\Console\Commands\RefreshDatabaseCommand;
 use App\Console\Commands\RefreshGridCommand;
 use App\Console\Commands\RefreshImageCommand;
-use App\Console\Commands\TestCommand;
 use App\Jobs\Crawls\StartCrawlingDataJob;
 use Illuminate\Console\Scheduling\Schedule;
 use Laravel\Lumen\Console\Kernel as ConsoleKernel;
@@ -25,7 +25,7 @@ class Kernel extends ConsoleKernel
         DistributeDataCommand::class,
         RefreshImageCommand::class,
         RefreshGridCommand::class,
-        TestCommand::class,
+        RefreshDatabaseCommand::class,
     ];
 
     /**
