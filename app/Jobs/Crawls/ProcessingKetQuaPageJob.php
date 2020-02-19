@@ -7,7 +7,7 @@ use App\Jobs\Job;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 
-class ProcessingCrawledPageJob extends Job
+class ProcessingKetQuaPageJob extends Job
 {
     /**
      * Create a new job instance.
@@ -27,10 +27,9 @@ class ProcessingCrawledPageJob extends Job
     {
         $body = $this->getHTML();
         $data = $this->parseHTML($body);
-        $result = $this->storeData($data);
-        dispatch(new ChainGenerateJob($this->queryDate->format('Y-m-d')));
 
-        return $result;
+        return $this->storeData($data);
+        // dispatch(new ChainGenerateJob($this->queryDate->format('Y-m-d')));
     }
 
     private function getHTML()
