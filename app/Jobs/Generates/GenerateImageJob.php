@@ -53,9 +53,11 @@ class GenerateImageJob extends Job
             $top = $rowIndex * $this->cellSize;
             foreach ($row as $cellIndex => $cell) {
                 $left = $cellIndex * $this->cellSize;
-                if (filled($cell)) {
+                if (0 !== $cell) {
                     // fill
                     ImageFilledRectangle($image, $left, $top, $left + $this->cellSize, $top + $this->cellSize, 1 === $cell ? $colorBlack : $colorJackpot);
+                } else {
+                    ImageFilledRectangle($image, $left, $top, $left + $this->cellSize, $top + $this->cellSize, 1 === $colorWhite);
                 }
             }
         }
