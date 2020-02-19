@@ -73,7 +73,7 @@ class RefreshImageCommand extends Command
             $question = 'Do you want to regenerate all '.count($keys).' images?';
         }
         if ($this->confirm($question)) {
-            $this->info('Make jobs, please wait');
+            $this->info('Make jobs, please wait.');
             foreach ($jobs as $date) {
                 dispatch(new GenerateImageJob($date))->onQueue('generator');
             }
