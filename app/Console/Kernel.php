@@ -4,8 +4,8 @@ namespace App\Console;
 
 use App\Console\Commands\ClearCommand;
 use App\Console\Commands\DispatchCommand;
-use App\Console\Commands\DistributeDataCommand;
 use App\Console\Commands\RefreshDatabaseCommand;
+use App\Console\Commands\RefreshDistributionCommand;
 use App\Console\Commands\RefreshGridCommand;
 use App\Console\Commands\RefreshImageCommand;
 use App\Jobs\Crawls\StartCrawlingDataJob;
@@ -22,10 +22,10 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         DispatchCommand::class,
         ClearCommand::class,
-        DistributeDataCommand::class,
         RefreshImageCommand::class,
         RefreshGridCommand::class,
         RefreshDatabaseCommand::class,
+        RefreshDistributionCommand::class,
     ];
 
     /**
@@ -33,6 +33,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->job(new StartCrawlingDataJob())->daily();
+        // $schedule->job(new StartCrawlingDataJob())->daily();
     }
 }
