@@ -91,17 +91,15 @@ class ClearCommand extends Command
 
     public function clearImages()
     {
-        $directories = $this->scanDir(storage_path('images/single'));
-        foreach ($directories as $dir) {
-            $this->deleteDir($dir);
-        }
+        $this->deleteDir(storage_path('images/single'), false);
     }
 
     public function clearGrids()
     {
-        $directories = $this->scanDir(storage_path('images/grid'));
+        $directories = $this->scanDir(storage_path('images/grids'));
+
         foreach ($directories as $dir) {
-            $this->deleteDir($dir);
+            $this->deleteDir(storage_path("images/grids/{$dir}"));
         }
     }
 
@@ -122,16 +120,18 @@ class ClearCommand extends Command
         return  array_diff(scandir($dir), ['..', '.']);
     }
 
-    private function deleteDir($target)
+    private function deleteDir($target, $removeDir = true)
     {
         if (is_dir($target)) {
             $files = glob($target.'*', GLOB_MARK); //GLOB_MARK adds a slash to directories returned
-
             foreach ($files as $file) {
-                $this->deleteDir($file);
+                $this->deleteDir($file, $removeDir);
             }
-
-            rmdir($target);
+            if (is_dir($target)) {
+                if ($removeDir) {
+                    rmdir($target);
+                }
+            }
         } elseif (is_file($target)) {
             unlink($target);
         }

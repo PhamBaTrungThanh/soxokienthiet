@@ -5,6 +5,7 @@ namespace App\Jobs\Generates;
 use App\Jobs\Job;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Str;
 
 class GenerateImageGridJob extends Job
 {
@@ -13,7 +14,7 @@ class GenerateImageGridJob extends Job
     /**
      * Create a new job instance.
      */
-    public $date;
+    public $key;
 
     public $tilePerRow;
 
@@ -22,15 +23,19 @@ class GenerateImageGridJob extends Job
     public $shouldProcess = true;
     public $tileSize;
 
-    public function __construct(string $date)
-    {
-        $this->date = Carbon::parse($date);
+    public $date;
 
+    public function __construct(string $key = 'lottery:2013-11-19')
+    {
         $this->tilePerRow = config('app.image.row_grid');
 
         $this->tileSize = self::MATRIX_DIMENSION * config('app.image.cell_size');
 
         $this->gridSize = $this->tilePerRow * $this->tileSize;
+
+        $this->key = $key;
+
+        $this->date = Carbon::parse(Str::after($this->key, config('app.lottery.key').':'));
     }
 
     /**

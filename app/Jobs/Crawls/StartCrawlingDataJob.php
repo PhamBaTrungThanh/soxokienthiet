@@ -39,7 +39,7 @@ class StartCrawlingDataJob extends Job
 
         $next_date_to_crawl = $latest_date_crawled->addDay();
         app('log')->info('Crawl for '.$next_date_to_crawl->toString());
-        dispatch((new ProcessingCrawledPageJob($next_date_to_crawl))->chain([new self()]));
+        dispatch((new ProcessingKetQuaPageJob($next_date_to_crawl))->chain([new self()]));
     }
 
     public function getLatestCrawledDate()

@@ -5,6 +5,7 @@ namespace App\Jobs\Generates;
 use App\Jobs\Job;
 use Exception;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class GenerateImageJob extends Job
 {
@@ -14,11 +15,11 @@ class GenerateImageJob extends Job
      */
     public $map;
     public $cellSize;
-    public $fileName;
+    public $key;
 
-    public function __construct(string $fileName)
+    public function __construct(string $key = 'lottery:2013-11-19')
     {
-        $this->fileName = $fileName;
+        $this->key = $key;
         $this->cellSize = config('app.image.cell_size');
     }
 
@@ -27,16 +28,14 @@ class GenerateImageJob extends Job
      */
     public function handle()
     {
-        $key = sprintf('%s:%s', config('app.lottery.key'), $this->date);
-        $storedData = app('redis')->get($key);
+        $storedData = app('redis')->get($this->key);
         if ('' === trim($storedData)) {
-            throw new Exception('No data found for key: '.$key);
+            throw new Exception('No data found for key: '.$this->key);
         }
         $data = $this->sanitizeData($storedData);
         $jackpot = $this->getJackpot($storedData);
 
         $this->map = $this->generateMap($data, $jackpot);
-
         $this->makeImage();
     }
 
@@ -53,14 +52,16 @@ class GenerateImageJob extends Job
             $top = $rowIndex * $this->cellSize;
             foreach ($row as $cellIndex => $cell) {
                 $left = $cellIndex * $this->cellSize;
-                if (filled($cell)) {
+                if (0 !== $cell) {
                     // fill
                     ImageFilledRectangle($image, $left, $top, $left + $this->cellSize, $top + $this->cellSize, 1 === $cell ? $colorBlack : $colorJackpot);
+                } else {
+                    ImageFilledRectangle($image, $left, $top, $left + $this->cellSize, $top + $this->cellSize, 1 === $colorWhite);
                 }
             }
         }
-
-        imagepng($image, storage_path("images/single/{$this->fileName}.png"));
+        $filename = Str::after($this->key, config('app.lottery.key').':');
+        imagepng($image, storage_path("images/single/{$filename}.png"));
 
         imagedestroy($image);
     }
