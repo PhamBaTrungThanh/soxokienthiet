@@ -5,6 +5,7 @@
             'validation' => [
                 'percent' => env('VALIDATION_PERCENT', 10),
             ],
+            'path' => env('DISTRIBUTION_PATH', storage_path('app/distributions')),
         ],
         'image' => [
             'cell_size' => env('IMAGE_CELL_SIZE', 5),
