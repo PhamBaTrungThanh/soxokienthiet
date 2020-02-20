@@ -105,10 +105,10 @@ class ClearCommand extends Command
 
     public function clearDistributions()
     {
-        // $directories = $this->scanDir(('images/single'));
-        // foreach ($directories as $dir) {
-        //     $this->deleteDir($dir);
-        // }
+        $directories = $this->scanDir(config('app.distribution.path'));
+        foreach ($directories as $dir) {
+            $this->deleteDir(config('app.distribution.path')."/{$dir}");
+        }
     }
 
     private function scanDir($dir)
