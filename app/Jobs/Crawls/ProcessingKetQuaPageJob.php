@@ -5,6 +5,7 @@ namespace App\Jobs\Crawls;
 use App\Jobs\Generates\ChainGenerateJob;
 use App\Jobs\Job;
 use Carbon\Carbon;
+use Exception;
 use GuzzleHttp\Client;
 
 class ProcessingKetQuaPageJob extends Job
