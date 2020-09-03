@@ -35,7 +35,7 @@ class ProcessingKetQuaPageJob extends Job
     private function getHTML()
     {
         $client = new Client();
-        $sourceUrl = sprintf('https://xskt.com.vn/ket-qua-xo-so-theo-ngay/mien-bac-xsmb/%s.html', $this->queryDate->format('d-m-Y'));
+        $sourceUrl = sprintf('http://ketqua.net/in-truyen-thong.php?ngay=%s', $this->queryDate->format('d-m-Y'));
         $response = $client->request('GET', $sourceUrl);
 
         return $response->getBody();
@@ -43,7 +43,7 @@ class ProcessingKetQuaPageJob extends Job
 
     private function parseHTML($body)
     {
-        if (false === strpos($body, '<table class="result" id="MB0">')) {
+        if (false === strpos($body, '<h2 class="viethoa printh2 vietdam">Kết quả xổ số Truyền Thống</h2>')) {
             return [];
         }
         $data = [];
