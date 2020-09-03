@@ -47,14 +47,14 @@ class ProcessingKetQuaPageJob extends Job
             return [];
         }
         $data = [];
-        $data['jackpot'] = $this->regex("/<td title=\"Giải ĐB\">ĐB<\\/td>\n<td><em>(\\d+)<\\/em><\\/td>/", $body);
-        $data['first_place'] = $this->regex("/<td title=\"Giải nhất\">G1<\\/td>\n<td><p>(\\d+)<\\/p><\\/td>/", $body);
-        $data['second_place'] = $this->regex("/<td title=\"Giải nhì\">G2<\\/td>\n<td><p>(.+?)<\\/p><\\/td>/", $body);
-        $data['third_place'] = $this->regex("/<td rowspan=\"2\" title=\"Giải ba\">G3<\\/td>\n<td rowspan=\"2\"><p>(.+?)<\\/p><\\/td>/", $body);
-        $data['fourth_place'] = $this->regex("/<td title=\"Giải tư\">G4<\\/td>\n<td><p>(.+?)<\\/p><\\/td>/", $body);
-        $data['fifth_place'] = $this->regex("/<td rowspan=\"2\" title=\"Giải năm\">G5<\\/td>\n<td rowspan=\"2\"><p>(.+?)<\\/p><\\/td>/", $body);
-        $data['sixth_place'] = $this->regex("/<td title=\"Giải sáu\">G6<\\/td>\n<td><p>(.+?)<\\/p><\\/td>/", $body);
-        $data['seventh_place'] = $this->regex("/<td title=\"Giải bảy\">G7<\\/td>\n<td><p>(.+?)<\\/p><\\/td>/", $body);
+        $data['jackpot'] = $this->regex('/<td id="rs_0_0" colspan="12" style="width:72%;" class="vietdam chu28" rs_len="5">(\\d+)<\\/td>/', $body);
+        $data['first_place'] = $this->regex('/<td id="rs_1_0" colspan="12" style="width:72%;" class="vietdam chu20" rs_len="5">(\\d+)<\\/td>/', $body);
+        $data['second_place'] = $this->regex('/<td id="rs_2_\\d" colspan="6" style="width:36%;" class="vietdam chu20" rs_len="5">(\\d+)<\\/td>/', $body);
+        $data['third_place'] = $this->regex('/<td id="rs_3_\\d" colspan="4" style="width:24%;" class="vietdam chu20" rs_len="5">(\\d+)<\\/td>/', $body);
+        $data['fourth_place'] = $this->regex('/td id="rs_4_\\d" colspan="3" style="width:18%;" class="vietdam chu20" rs_len="4">(\\d+)<\\/td>/', $body);
+        $data['fifth_place'] = $this->regex('/<td id="rs_5_\\d" colspan="4" style="width:24%;" class="vietdam chu20" rs_len="4">(\\d+)<\\/td>/', $body);
+        $data['sixth_place'] = $this->regex('/<td id="rs_6_\\d" colspan="4" style="width:24%;" class="vietdam chu20" rs_len="3">(\\d+)<\\/td>/', $body);
+        $data['seventh_place'] = $this->regex('/<td id="rs_7_\\d" colspan="3" style="width:18%;" class="vietdam chu20" rs_len="2">(\\d+)<\\/td>/', $body);
 
         return $data;
     }
