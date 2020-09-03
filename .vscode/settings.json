@@ -1,4 +1,7 @@
 {
     "artisan.docker.enabled": true,
-    "artisan.docker.command": "docker-compose exec -T app"
+    "artisan.docker.command": "docker-compose exec -T app",
+    "cSpell.words": [
+        "soxokienthiet"
+    ]
 }

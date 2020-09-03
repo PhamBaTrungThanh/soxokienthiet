@@ -1,40 +1,23 @@
-FROM nginx:1.15.12-alpine
+FROM nginx:1.17.10-alpine
 
 LABEL maintainer="Pham Ba Trung Thanh <phambatrungthanh@gmail.com>"
 
-ARG WWW_ID=33
-ARG WWW_GROUP=33
-
-ENV USER_ID=${WWW_ID}
-ENV GROUP_ID=${WWW_GROUP}
-
 # IMAGE ARGUMENTS WITH DEFAULTS.
-ARG PHP_VERSION=7.3
+ARG PHP_VERSION=7.4
 ARG ALPINE_VERSION=3.9
 ARG COMPOSER_HASH=a5c698ffe4b8e849a443b120cd5ba38043260d5c4023dbf93e1558871f1f07f58274fc6f4c93bcfd858c6bd0775cd8d1
 
+ARG USER_ID
+ARG GROUP_ID
+
 USER root
+
 RUN apk add --update --no-cache curl ca-certificates \
-    bash \
     supervisor \
     shadow \
+    sqlite \
+    rsync \
     sudo
-
-RUN if [ -z "`getent group $GROUP_ID`" ]; then \
-    addgroup -S -g $GROUP_ID www-data; \
-    else \
-    groupmod -n www-data `getent group $GROUP_ID | cut -d: -f1`; \
-    fi && \
-    if [ -z "`getent passwd $USER_ID`" ]; then \
-    adduser -S -u $USER_ID -G www-data -s /bin/sh www-data; \
-    else \
-    usermod -l www-data -g $GROUP_ID -d /home/www-data -m `getent passwd $USER_ID | cut -d: -f1`; \
-    fi && \
-    echo "www-data ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/www-data && \
-    chmod 0440 /etc/sudoers.d/www-data
-
-
-
 
 # trust this project public key to trust the packages.
 ADD https://dl.bintray.com/php-alpine/key/php-alpine.rsa.pub /etc/apk/keys/php-alpine.rsa.pub
@@ -64,15 +47,24 @@ RUN apk add --no-cache --update php-fpm@php \
     php-phar@php \
     php-session@php \
     php-dom@php \
-    php-redis@php \
+    php-sqlite3@php \
+    php-pdo_sqlite@php \
     php-ctype@php \
     php-zlib@php \
+    php-redis@php \
     php-json@php \
     php-posix@php \
     php-xmlreader@php \
     php-zip@php \
+    php-xdebug@php \
     php-xml@php && \
     ln -s /usr/bin/php7 /usr/bin/php
+
+RUN apk add gnu-libiconv --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --allow-untrusted
+
+ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
+# END Fix iconv extension
+
 # CONFIGURE WEB SERVER.
 RUN mkdir -p /var/www && \
     mkdir -p /run/php && \
@@ -80,13 +72,10 @@ RUN mkdir -p /var/www && \
     mkdir -p /var/log/supervisor && \
     mkdir -p /etc/nginx/sites-enabled && \
     mkdir -p /etc/nginx/sites-available && \
-    rm /etc/nginx/nginx.conf && \
-    rm /etc/php7/php-fpm.d/www.conf && \
     rm /etc/php7/php.ini
 
 # INSTALL COMPOSER.
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
-    php -r "if (hash_file('SHA384', 'composer-setup.php') === '${COMPOSER_HASH}') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" && \
     php composer-setup.php --install-dir=/usr/bin --filename=composer && \
     php -r "unlink('composer-setup.php');"
 
@@ -94,24 +83,32 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" &&
 ADD start.sh /start.sh
 ADD supervisord/supervisord.conf /etc/supervisord.conf
 ADD php/php.ini /etc/php7/php.ini
-ADD php-fpm/www.conf /etc/php7/php-fpm.d/www.conf
-
-ADD nginx/nginx.conf /etc/nginx/nginx.conf
-ADD nginx/site.conf /etc/nginx/sites-available/default.conf
+ADD nginx/site.conf /etc/nginx/conf.d/laravel.conf
 
 RUN chmod 755 /start.sh
-# EXPOSE PORTS!
-EXPOSE 80
+
 
 # SET THE WORK DIRECTORY.
 
-WORKDIR /var/www
-RUN chown --changes --silent --no-dereference --recursive \
+
+# IF USER_ID IS SET, RECREATE www-data WITH USER_ID:GROUP_ID
+RUN if [ ${USER_ID:-0} -ne 0 ] && [ ${GROUP_ID:-0} -ne 0 ]; then \
+    if  getent passwd www-data > /dev/null 2>&1 ; then userdel -f www-data; fi &&\
+    if getent group www-data ; then groupdel www-data; fi &&\
+    groupadd -g ${GROUP_ID} www-data &&\
+    useradd -l -u ${USER_ID} -g www-data www-data &&\
+    install -d -m 0755 -o www-data -g www-data /home/www-data &&\
+    chown --changes --silent --no-dereference --recursive \
     ${USER_ID}:${GROUP_ID} \
-    # /home/www-data \
+    /home/www-data \
+    /var/www \
     /var/log/php7 \
     /var/log/nginx/error.log \
-    /var/log/nginx/access.log;
+    /var/log/nginx/access.log \
+    ;fi
+
+WORKDIR /var/www
 
 
-CMD ["/start.sh"]
+
+ENTRYPOINT  ["/start.sh"]

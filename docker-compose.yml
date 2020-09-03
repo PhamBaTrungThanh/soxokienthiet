@@ -6,14 +6,14 @@ services:
             - 6379
         volumes: 
             - redis-data:/data
-    app:
+    soxokienthiet:
         build:
             context: ./build
             dockerfile: Dockerfile
         volumes:
             - ./:/var/www
         ports:
-            - "10.8.0.1:7000:80"
+            - "8801:80"
         env_file:
             - ".env"
         links:
@@ -21,12 +21,11 @@ services:
     redis-manager:
         image: "erikdubbelboer/phpredisadmin"
         ports:
-            - "10.8.0.1:7001:80"   
+            - "8802:80"   
         environment:
             - REDIS_1_HOST=redis
             - REDIS_1_NAME=redis
             - REDIS_1_PORT=6379
-
 
 volumes:
     redis-data: {}
