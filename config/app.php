@@ -14,6 +14,6 @@
         'lottery' => [
             'key' => env('LOTTERY_KEY', 'lottery'),
             'latest_date' => env('OPTION_LATEST_DATE_CRAWLED', 'options:latest_date_crawled'),
-            'oldest_date' => env('LOTTERY_OLDEST_DATE', '2006-04-19'),
+            'oldest_date' => env('LOTTERY_OLDEST_DATE', '2006-08-29'),
         ],
     ];
