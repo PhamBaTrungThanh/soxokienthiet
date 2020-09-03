@@ -73,9 +73,14 @@ class ProcessingKetQuaPageJob extends Job
     // Service functions
     private function regex($regex, $data)
     {
-        preg_match($regex, $data, $matches);
-        $result = explode(' ', str_replace('<br>', ' ', $matches[1]));
+        try {
+            preg_match_all($regex, $data, $matches);
 
-        return 1 === count($result) ? $result[0] : $result;
+            return 1 === count($matches[1]) ? $matches[1][0] : $matches[1];
+        } catch (Exception $e) {
+            report($e);
+
+            return '';
+        }
     }
 }
