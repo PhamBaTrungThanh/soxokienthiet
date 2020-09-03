@@ -5,6 +5,7 @@ namespace App\Jobs\Crawls;
 use App\Jobs\Generates\ChainGenerateJob;
 use App\Jobs\Job;
 use Carbon\Carbon;
+use Exception;
 use GuzzleHttp\Client;
 
 class ProcessingKetQuaPageJob extends Job
@@ -35,7 +36,7 @@ class ProcessingKetQuaPageJob extends Job
     private function getHTML()
     {
         $client = new Client();
-        $sourceUrl = sprintf('https://xskt.com.vn/ket-qua-xo-so-theo-ngay/mien-bac-xsmb/%s.html', $this->queryDate->format('d-m-Y'));
+        $sourceUrl = sprintf('http://ketqua.net/in-truyen-thong.php?ngay=%s', $this->queryDate->format('d-m-Y'));
         $response = $client->request('GET', $sourceUrl);
 
         return $response->getBody();
@@ -43,18 +44,18 @@ class ProcessingKetQuaPageJob extends Job
 
     private function parseHTML($body)
     {
-        if (false === strpos($body, '<table class="result" id="MB0">')) {
+        if (false === strpos($body, '<h2 class="viethoa printh2 vietdam">Kết quả xổ số Truyền Thống</h2>')) {
             return [];
         }
         $data = [];
-        $data['jackpot'] = $this->regex("/<td title=\"Giải ĐB\">ĐB<\\/td>\n<td><em>(\\d+)<\\/em><\\/td>/", $body);
-        $data['first_place'] = $this->regex("/<td title=\"Giải nhất\">G1<\\/td>\n<td><p>(\\d+)<\\/p><\\/td>/", $body);
-        $data['second_place'] = $this->regex("/<td title=\"Giải nhì\">G2<\\/td>\n<td><p>(.+?)<\\/p><\\/td>/", $body);
-        $data['third_place'] = $this->regex("/<td rowspan=\"2\" title=\"Giải ba\">G3<\\/td>\n<td rowspan=\"2\"><p>(.+?)<\\/p><\\/td>/", $body);
-        $data['fourth_place'] = $this->regex("/<td title=\"Giải tư\">G4<\\/td>\n<td><p>(.+?)<\\/p><\\/td>/", $body);
-        $data['fifth_place'] = $this->regex("/<td rowspan=\"2\" title=\"Giải năm\">G5<\\/td>\n<td rowspan=\"2\"><p>(.+?)<\\/p><\\/td>/", $body);
-        $data['sixth_place'] = $this->regex("/<td title=\"Giải sáu\">G6<\\/td>\n<td><p>(.+?)<\\/p><\\/td>/", $body);
-        $data['seventh_place'] = $this->regex("/<td title=\"Giải bảy\">G7<\\/td>\n<td><p>(.+?)<\\/p><\\/td>/", $body);
+        $data['jackpot'] = $this->regex('/<td id="rs_0_0" colspan="12" style="width:72%;" class="vietdam chu28" rs_len="5">(\\d+)<\\/td>/', $body);
+        $data['first_place'] = $this->regex('/<td id="rs_1_0" colspan="12" style="width:72%;" class="vietdam chu20" rs_len="5">(\\d+)<\\/td>/', $body);
+        $data['second_place'] = $this->regex('/<td id="rs_2_\\d" colspan="6" style="width:36%;" class="vietdam chu20" rs_len="5">(\\d+)<\\/td>/', $body);
+        $data['third_place'] = $this->regex('/<td id="rs_3_\\d" colspan="4" style="width:24%;" class="vietdam chu20" rs_len="5">(\\d+)<\\/td>/', $body);
+        $data['fourth_place'] = $this->regex('/td id="rs_4_\\d" colspan="3" style="width:18%;" class="vietdam chu20" rs_len="4">(\\d+)<\\/td>/', $body);
+        $data['fifth_place'] = $this->regex('/<td id="rs_5_\\d" colspan="4" style="width:24%;" class="vietdam chu20" rs_len="4">(\\d+)<\\/td>/', $body);
+        $data['sixth_place'] = $this->regex('/<td id="rs_6_\\d" colspan="4" style="width:24%;" class="vietdam chu20" rs_len="3">(\\d+)<\\/td>/', $body);
+        $data['seventh_place'] = $this->regex('/<td id="rs_7_\\d" colspan="3" style="width:18%;" class="vietdam chu20" rs_len="2">(\\d+)<\\/td>/', $body);
 
         return $data;
     }
@@ -73,9 +74,14 @@ class ProcessingKetQuaPageJob extends Job
     // Service functions
     private function regex($regex, $data)
     {
-        preg_match($regex, $data, $matches);
-        $result = explode(' ', str_replace('<br>', ' ', $matches[1]));
+        try {
+            preg_match_all($regex, $data, $matches);
 
-        return 1 === count($result) ? $result[0] : $result;
+            return 1 === count($matches[1]) ? $matches[1][0] : $matches[1];
+        } catch (Exception $e) {
+            report($e);
+
+            return '';
+        }
     }
 }
