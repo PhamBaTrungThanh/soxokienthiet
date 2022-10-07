@@ -91,6 +91,7 @@ RUN chmod 755 /start.sh
 # SET THE WORK DIRECTORY.
 
 
+
 # IF USER_ID IS SET, RECREATE www-data WITH USER_ID:GROUP_ID
 RUN if [ ${USER_ID:-0} -ne 0 ] && [ ${GROUP_ID:-0} -ne 0 ]; then \
     if  getent passwd www-data > /dev/null 2>&1 ; then userdel -f www-data; fi &&\
@@ -108,7 +109,5 @@ RUN if [ ${USER_ID:-0} -ne 0 ] && [ ${GROUP_ID:-0} -ne 0 ]; then \
     ;fi
 
 WORKDIR /var/www
-
-
 
 ENTRYPOINT  ["/start.sh"]

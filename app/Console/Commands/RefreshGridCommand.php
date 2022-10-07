@@ -26,7 +26,7 @@ class RefreshGridCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'refresh:grid {--missing}';
+    protected $signature = 'refresh:grid {--missing} {--skip-empty}';
 
     /**
      * The console command description.
@@ -60,9 +60,11 @@ class RefreshGridCommand extends Command
             $question = 'Do you want to regenerate all '.count($keys).' grid?';
         }
         if ($this->confirm($question)) {
+            $skipEmpty = $this->option("skip-empty") ? true : false;
             $this->info('Make jobs, please wait.');
             foreach ($jobs as $key) {
-                dispatch(new GenerateImageGridJob($key))->onQueue('generator');
+                
+                dispatch(new GenerateImageGridJob($key, $skipEmpty))->onQueue('generator');
             }
 
             $this->listenOnQueue('generator');

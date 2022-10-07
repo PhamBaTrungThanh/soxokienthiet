@@ -22,10 +22,11 @@ class GenerateImageGridJob extends Job
 
     public $shouldProcess = true;
     public $tileSize;
+    public $skipEmpty;
 
     public $date;
 
-    public function __construct(string $key = 'lottery:2013-11-19')
+    public function __construct(string $key = 'lottery:2013-11-19', bool $skipEmpty = false)
     {
         $this->tilePerRow = config('app.image.row_grid');
 
@@ -36,6 +37,8 @@ class GenerateImageGridJob extends Job
         $this->key = $key;
 
         $this->date = Carbon::parse(Str::after($this->key, config('app.lottery.key').':'));
+
+        $this->skipEmpty = $skipEmpty;
     }
 
     /**
@@ -76,6 +79,12 @@ class GenerateImageGridJob extends Job
             $totalImageNeeded = $this->tilePerRow * $this->tilePerRow;
             $pathList = [];
             info("Make grid for date: {$this->date->format('Y-m-d')}");
+            if ($this->skipEmpty) {
+                $currentDateValue = app('redis')->get($this->key);
+                if ('[]' === $currentDateValue) {
+                    throw new Exception("Date {$this->date->format('Y-m-d')} is empty. Skip this date.");
+                }
+            }
             for ($imageIndex = $totalImageNeeded - 1; $imageIndex >= 0; --$imageIndex) {
                 $dateToLoad = $this->date->clone()->subDays($imageIndex);
 
@@ -85,6 +94,13 @@ class GenerateImageGridJob extends Job
 
                 if (!file_exists($filePath)) {
                     throw new Exception("Image from path '".$filePath."' does not exits. Skip this date.");
+                }
+                if ($this->skipEmpty) {
+                    $dateKey = config('app.lottery.key').':'.$fileNameFromDate;
+                    $dateValue = app('redis')->get($dateKey);
+                    if ('[]' === $dateValue) {
+                        throw new Exception("Related date {$fileNameFromDate} is empty. Skip this date.");
+                    }
                 }
 
                 $pathList[] = $filePath;

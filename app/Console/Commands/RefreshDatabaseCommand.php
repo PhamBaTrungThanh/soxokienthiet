@@ -36,7 +36,7 @@ class RefreshDatabaseCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Rerun image job';
+    protected $description = 'Rerun all process and replace database.';
 
     /**
      * Execute the console command.
@@ -64,7 +64,7 @@ class RefreshDatabaseCommand extends Command
         } catch (Exception $e) {
             app('redis')->set(config('app.lottery.latest_date'), config('app.lottery.oldest_date'));
             app('redis')->persist(config('app.lottery.latest_date'));
-            $latest = Carbon::parse(config('app.lottery.oldest_date'));
+            $latestDate = $latest = Carbon::parse(config('app.lottery.oldest_date'));
             $this->error($e->getMessage());
         }
         $period = CarbonPeriod::create($latestDate, $today, CarbonPeriod::EXCLUDE_START_DATE);
